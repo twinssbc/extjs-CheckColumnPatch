@@ -11,6 +11,8 @@ Ext.define('Ext.ux.CheckColumnPatch', {
         var me = this;
         me.callParent(arguments);
 
+        me.addEvents('beforecheckallchange', 'checkallchange');
+
         if (me.columnHeaderCheckbox) {
             me.on('headerclick', function () {
                 this.updateAllRecords();
@@ -18,7 +20,7 @@ Ext.define('Ext.ux.CheckColumnPatch', {
 
             me.on('render', function (comp) {
                 var grid = comp.up('grid');
-                this.mon(grid, 'reconfigure', function (store) {
+                this.mon(grid, 'reconfigure', function () {
                     if (this.isVisible()) {
                         this.bindStore();
                     }
@@ -64,7 +66,7 @@ Ext.define('Ext.ux.CheckColumnPatch', {
         return allChecked;
     },
 
-    bindStore: function (store) {
+    bindStore: function () {
         var me = this,
             grid = me.up('grid'),
             store = grid.getStore();
@@ -93,13 +95,16 @@ Ext.define('Ext.ux.CheckColumnPatch', {
         var me = this,
             allChecked = !me.allChecked;
 
-        this.updatingAll = true;
-        me.store.each(function (record) {
-            record.set(this.dataIndex, allChecked);
-        }, me);
+        if (me.fireEvent('beforecheckallchange', me, allChecked) !== false) {
+            this.updatingAll = true;
+            me.store.each(function (record) {
+                record.set(this.dataIndex, allChecked);
+            }, me);
 
-        this.updatingAll = false;
-        this.onStoreDateUpdate();
+            this.updatingAll = false;
+            this.onStoreDateUpdate();
+            me.fireEvent('checkallchange', me, allChecked);
+        }
     },
 
     getHeaderCheckboxImage: function (allChecked) {
