@@ -93,10 +93,11 @@ Ext.define('Ext.ux.CheckColumnPatch', {
 
     updateAllRecords: function () {
         var me = this,
-            allChecked = !me.allChecked,
-			grid = me.up('grid');
+            allChecked = !me.allChecked;
 
         if (me.fireEvent('beforecheckallchange', me, allChecked) !== false) {
+        	var grid = me.up('grid');
+        	
             this.updatingAll = true;
 			me.store.suspendEvents();
             me.store.each(function (record) {
