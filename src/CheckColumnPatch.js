@@ -96,11 +96,15 @@ Ext.define('Ext.ux.CheckColumnPatch', {
             allChecked = !me.allChecked;
 
         if (me.fireEvent('beforecheckallchange', me, allChecked) !== false) {
+        	var grid = me.up('grid');
+        	
             this.updatingAll = true;
+			me.store.suspendEvents();
             me.store.each(function (record) {
                 record.set(this.dataIndex, allChecked);
             }, me);
-
+			me.store.resumeEvents();
+			grid.getView().refresh();
             this.updatingAll = false;
             this.onStoreDateUpdate();
             me.fireEvent('checkallchange', me, allChecked);
